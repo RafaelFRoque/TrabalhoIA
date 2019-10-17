@@ -84,9 +84,8 @@ class DepthSearch {
 		pair<int, int> end;
 		stack<pair<int, int>> path;
 		char **visited;
-		char **visited2;
 	public:
-		DepthSearch(Labyrinth lab) {
+		DepthSearch(Labyrinth &lab) {
 			cost = 0.0;
 			visitedRow = lab.getRow();
 			visitedCol = lab.getCol();
@@ -100,14 +99,6 @@ class DepthSearch {
 			for(int i = 0; i < visitedRow; i++)
 				for(int j = 0; j < visitedCol; j++)
 					visited[i][j] = lab.labyrinth[i][j];
-
-			visited2 = (char **) malloc(sizeof(char *) * visitedRow);        
-			for(int i = 0; i < visitedRow; i++)
-				visited2[i] = (char *) malloc(sizeof(char) * visitedCol);
-
-			for(int i = 0; i < visitedRow; i++)
-				for(int j = 0; j < visitedCol; j++)
-					visited2[i][j] = lab.labyrinth[i][j];
 		}
 		~DepthSearch() {
 			for(int i = 0; i < visitedRow; i++)
@@ -121,27 +112,10 @@ class DepthSearch {
 					path.pop();
 				}
 				cout << cost << endl;
-				// teste();
 				printVisited();
 			}
 				
 		}
-		// void teste(){
-		// 	int t = (int)path.size();
-
-		// 	for(int k=0; k<t; k++){
-		// 		int a = path.top().fi;
-		// 		int b = path.top().se;
-		// 		path.pop();
-		// 		visited2[a][b] = 'o'; 
-		// 		for(int i = 0; i < visitedRow; i++) {
-		// 			for(int j = 0; j < visitedCol; j++)
-		// 				cout << visited2[i][j];
-		// 			cout << endl;
-		// 		}
-		// 		cout << endl;
-		// 	}
-		// }
 		void printVisited() {
 			for(int i = 0; i < visitedRow; i++){
 				for(int j = 0; j < visitedCol; j++){
@@ -242,10 +216,11 @@ class BreadthSearch {
 		int visitedCol;
 		pair<int, int> start;
 		pair<int, int> end;
-		int **parent;
+		stack<pair<int, int>> path;
+		pair<int, double> **parent;
 		char **visited;
 	public:
-		BreadthSearch(Labyrinth lab) {
+		BreadthSearch(Labyrinth &lab) {
 			cost = 0.0;
 			visitedRow = lab.getRow();
 			visitedCol = lab.getCol();
@@ -259,14 +234,14 @@ class BreadthSearch {
 			for(int i = 0; i < visitedRow; i++)
 				for(int j = 0; j < visitedCol; j++)
 					visited[i][j] = lab.labyrinth[i][j];
-
-			parent = (int **) malloc(sizeof(int *) * visitedRow);        
+		
+			parent = (pair<int, double> **) malloc(sizeof(pair<int, double>*) * visitedRow);        
 			for(int i = 0; i < visitedRow; i++)
-				parent[i] = (int *) malloc(sizeof(int) * visitedCol);
+				parent[i] = (pair<int, double> *) malloc(sizeof(pair<int, double>) * visitedCol);
 
 			for(int i = 0; i < visitedRow; i++)
 				for(int j = 0; j < visitedCol; j++)
-					parent[i][j] = -1;
+					parent[i][j] = make_pair(-1, 0.0);
 		}
 		~BreadthSearch() {
 			for(int i = 0; i < visitedRow; i++)
@@ -278,6 +253,19 @@ class BreadthSearch {
 			free(parent);   
 		}
 		void run() {
+			if(search()){
+				while(!path.empty()){
+					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					path.pop();
+				}
+				cost = parent[end.fi][end.se].se;
+				cout << cost << endl;
+				printVisited();
+			}
+							
+		}
+
+		int search(){
 			queue<pair<int, int>> q;
 			visited[start.fi][start.se] = 'o';
 			q.push(start);
@@ -285,18 +273,67 @@ class BreadthSearch {
 				pair<int, int> aux = q.front();
 				q.pop();
 				if(aux == end) {
-					while(parent[aux.fi][aux.se] != -1) {
-						
+					path.push(aux);
+					while(parent[aux.fi][aux.se].fi != -1) {
+						pair<int, double> prnt = parent[aux.fi][aux.se];
+						aux = make_pair((int)(prnt.fi/visitedCol),(prnt.fi%visitedCol));
+						path.push(aux);						
 					}
-					
+					return 1;
 				}
-
-
+				else{
+					//norte
+					if(aux.fi > 0 and visited[aux.fi-1][aux.se] != '-' and visited[aux.fi-1][aux.se] != 'o'){
+						visited[aux.fi-1][aux.se] = 'o';
+						q.push(make_pair(aux.fi-1, aux.se));
+						parent[aux.fi-1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
+					}
+					//nordeste
+					if(aux.fi > 0 and aux.se < visitedCol-1 and visited[aux.fi-1][aux.se+1] != '-' and visited[aux.fi-1][aux.se+1] != 'o'){
+						visited[aux.fi-1][aux.se+1] = 'o';
+						q.push(make_pair(aux.fi-1, aux.se+1));
+						parent[aux.fi-1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
+					}
+					//leste
+					if(aux.se < visitedCol-1 and visited[aux.fi][aux.se+1] != '-' and visited[aux.fi][aux.se+1] != 'o'){
+						visited[aux.fi][aux.se+1] = 'o';
+						q.push(make_pair(aux.fi, aux.se+1));
+						parent[aux.fi][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
+					}
+					//sudeste
+					if(aux.fi < visitedRow-1 and aux.second < visitedCol-1 and visited[aux.fi+1][aux.se+1] != '-' and visited[aux.fi+1][aux.se+1] != 'o'){
+						visited[aux.fi+1][aux.se+1] = 'o';
+						q.push(make_pair(aux.fi+1, aux.se+1));
+						parent[aux.fi+1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
+					}
+					//sul
+					if(aux.fi < visitedRow-1 and visited[aux.fi+1][aux.se] != '-' and visited[aux.fi+1][aux.se] != 'o'){
+						visited[aux.fi+1][aux.se] = 'o';
+						q.push(make_pair(aux.fi+1, aux.se));
+						parent[aux.fi+1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
+					}
+					//sudoeste
+					if(aux.fi < visitedRow-1 and aux.se > 0 and visited[aux.fi+1][aux.se-1] != '-' and visited[aux.fi+1][aux.se-1] != 'o'){
+						visited[aux.fi+1][aux.se-1] = 'o';
+						q.push(make_pair(aux.fi+1, aux.se-1));
+						parent[aux.fi+1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
+					}
+					//oeste
+					if(aux.se > 0 and visited[aux.fi][aux.se-1] != '-' and visited[aux.fi][aux.se-1] != 'o'){
+						visited[aux.fi][aux.se-1] = 'o';
+						q.push(make_pair(aux.fi, aux.se-1));
+						parent[aux.fi][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
+					}
+					//noroeste
+					if(aux.fi > 0 and aux.se > 0 and visited[aux.fi-1][aux.se-1] != '-' and visited[aux.fi-1][aux.se-1] != 'o'){
+						visited[aux.fi-1][aux.se-1] = 'o';
+						q.push(make_pair(aux.fi-1, aux.se-1));
+						parent[aux.fi-1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
+					}
+				}
 			}
-
-				
+			return 0;
 		}
-
 
 		void printVisited() {
 			for(int i = 0; i < visitedRow; i++){
@@ -325,6 +362,8 @@ int main() {
 		lab.printLab();
 		DepthSearch ds(lab);
 		ds.run();
+		BreadthSearch bs(lab);
+		bs.run();
 	}
 		
 	
