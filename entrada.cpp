@@ -57,13 +57,16 @@ class Labyrinth {
 			for(int i = 0; i < rowSize; i++)
 				for(int j = 0; j < colSize; j++){
 					cin >> labyrinth[i][j];
-					if(labyrinth[i][j] == '#')
+					if(labyrinth[i][j] == '#'){
 						start = make_pair(i, j);
-					else if(labyrinth[i][j] == '$')
+						cout << "#" << i << " " << j << endl;
+					}
+					else if(labyrinth[i][j] == '$'){
 						end = make_pair(i, j);
+						cout << "$" << i << " " << j << endl;
+					}
 				}
-				cout << "Entrada = " << start.fi << ", " << start.se << "     Saida = " << end.fi << ", " << end.se << endl;
-		}
+			}
 
 		void printLab() {
 			for(int i = 0; i < rowSize; i++) {
@@ -114,7 +117,7 @@ class DepthSearch {
 			timerA = clock();
 			if(search(start)){
 				while(!path.empty()){
-					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					cout << "(" << path.top().fi << ", " << path.top().se << ") "; 
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
@@ -267,7 +270,7 @@ class BreadthSearch {
 			timerA = clock();
 			if(search()){
 				while(!path.empty()){
-					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					cout << "(" << path.top().fi << ", " << path.top().se << ") ";
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
@@ -411,7 +414,7 @@ class BestSearch {
 			timerA = clock();
 			if(search()){
 				while(!path.empty()){
-					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					cout << "(" << path.top().fi << ", " << path.top().se << ") ";
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
@@ -535,18 +538,19 @@ int main() {
 		lab.printLab();
 		DepthSearch ds(lab);
 		timeDepthSearch += ds.run();
-		printf("Media DS: %lf", timeDepthSearch);
 		BreadthSearch bs(lab);
 		timeBreadthSearch += bs.run();
-		printf("Media BS: %lf", timeBreadthSearch);
 		BestSearch bests(lab);
 		timeBestSearch += bests.run();
-		printf("Media BestS: %lf", timeBestSearch);
+
 	}
 	timeDepthSearch = timeDepthSearch/cases;
 	timeBreadthSearch =  timeBreadthSearch/cases;
 	timeBestSearch =  timeBestSearch/cases;
 
+	printf("Media DS: %lf\n", timeDepthSearch);
+	printf("Media BS: %lf\n", timeBreadthSearch);
+	printf("Media BestS: %lf\n", timeBestSearch);
 	
 	return 0;
 }
