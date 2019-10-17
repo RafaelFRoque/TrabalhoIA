@@ -57,11 +57,16 @@ class Labyrinth {
 			for(int i = 0; i < rowSize; i++)
 				for(int j = 0; j < colSize; j++){
 					cin >> labyrinth[i][j];
-					if(labyrinth[i][j] == '#')
+					if(labyrinth[i][j] == '#'){
 						start = make_pair(i, j);
-					else if(labyrinth[i][j] == '$')
+						cout << "#" << i << " " << j << endl;
+					}
+					else if(labyrinth[i][j] == '$'){
 						end = make_pair(i, j);
+						cout << "$" << i << " " << j << endl;
+					}
 				}
+			cout << "aqui";
 		}
 
 		void printLab() {
@@ -114,6 +119,7 @@ class DepthSearch {
 			if(search(start)){
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ") "; 
+					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
 				cout << cost << endl;
@@ -266,6 +272,7 @@ class BreadthSearch {
 			if(search()){
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ") ";
+					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
 				cost = parent[end.fi][end.se].se;
