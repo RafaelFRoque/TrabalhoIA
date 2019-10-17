@@ -4,7 +4,7 @@
 #include <string>
 #include <stack>
 #include <queue>
-
+#include <ctime>
 #include <cmath>
 #include <map>
 #define fi first
@@ -62,6 +62,7 @@ class Labyrinth {
 					else if(labyrinth[i][j] == '$')
 						end = make_pair(i, j);
 				}
+				cout << "Entrada = " << start.fi << ", " << start.se << "     Saida = " << end.fi << ", " << end.se << endl;
 		}
 
 		void printLab() {
@@ -106,17 +107,24 @@ class DepthSearch {
 				free(visited[i]);
 			free(visited);   
 		}
-		void run() {
+		double run() {
+			clock_t timerA;
+			clock_t timerB;
+			
+			timerA = clock();
 			if(search(start)){
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
 				cout << cost << endl;
 				printVisited();
 			}
-				
+			timerB = clock();
+			return (double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);				
 		}
+
 		void printVisited() {
 			for(int i = 0; i < visitedRow; i++){
 				for(int j = 0; j < visitedCol; j++){
@@ -253,16 +261,22 @@ class BreadthSearch {
 				free(parent[i]);
 			free(parent);   
 		}
-		void run() {
+		double run() {
+			clock_t timerA;
+			clock_t timerB;
+			timerA = clock();
 			if(search()){
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
+					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
 				cost = parent[end.fi][end.se].se;
 				cout << cost << endl;
 				printVisited();
 			}
+			timerB = clock();
+			return (double)(timerB-timerA)/(double)(CLOCKS_PER_SEC);
 							
 		}
 
@@ -391,7 +405,10 @@ class BestSearch {
 				free(parent[i]);
 			free(parent);   
 		}
-		void run() {
+		double run() {
+			clock_t timerA;
+			clock_t timerB;
+			timerA = clock();
 			if(search()){
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ")" << endl;
@@ -402,13 +419,14 @@ class BestSearch {
 				cout << cost << endl;
 				printVisited();
 			}
+			timerB = clock();
+
+			return (double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
 							
 		}
 
 		int search(){
 			priority_queue <pair<int, pair<int, int> > > q;
-	//		priority_queue<int, vector<int>, greater<int> >q;
-
 
 			visited[start.fi][start.se] = 'o';
 			q.push(make_pair(0, start));
@@ -501,22 +519,34 @@ class BestSearch {
 int main() { 
 
 	int cases;
-	int count = 0;
 	cin >> cases;
+	int count = cases;
+	double timeDepthSearch = 0.0;
+	double timeBreadthSearch = 0.0;
+	double timeBestSearch = 0.0;
+	double timeA = 0.0;
 
-	while(cases > 0) {
-		cases--;
+	while(count > 0) {
+		count--;
 		int row, col;
 		cin >> row >> col;
 		Labyrinth lab(row, col); 
-		//DepthSearch  
 		lab.readInput();
 		lab.printLab();
 		DepthSearch ds(lab);
-		ds.run();
+		timeDepthSearch += ds.run();
+		printf("Media DS: %lf", timeDepthSearch);
 		BreadthSearch bs(lab);
-		bs.run();
+		timeBreadthSearch += bs.run();
+		printf("Media BS: %lf", timeBreadthSearch);
 		BestSearch bests(lab);
-		bests.run();
+		timeBestSearch += bests.run();
+		printf("Media BestS: %lf", timeBestSearch);
 	}
+	timeDepthSearch = timeDepthSearch/cases;
+	timeBreadthSearch =  timeBreadthSearch/cases;
+	timeBestSearch =  timeBestSearch/cases;
+
+	
+	return 0;
 }
