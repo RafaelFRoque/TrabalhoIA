@@ -13,10 +13,11 @@
 #define fi first
 #define se second
 
-#define DEBUG 1
+#define DEBUG 0
 #define WALL '-'
 #define FREE_PATH '*'
 #define VISITED 'o'
+#define MINIMUM_PATH '0'
 #define START '#'
 #define GOAL '$'
 
@@ -670,35 +671,65 @@ class SearchBase {
 class A_StarSearch : public SearchBase {
 	private:
 		double cost;
-
+		Node** posDetails;
 	public:
 		A_StarSearch(Labyrinth &lab) {
 			cost = 0.0;
 			SetLabyrinthVariables(lab);
 			CreateVisitedMatrix(lab);
-			
-			Matrix::PrintCharMatrix(visited, rowSize, colSize);
-		}
-		~A_StarSearch() {
-			Matrix::FreeCharMatrix(visited, rowSize);
-		}
-		void Run() {
-			printf("Começando a busca A*\n");
-			int returned = Search(start);
-		}
 
-		int Search(pair<int, int> currentPos){
-			if (currentPos == end){
-				printf("You are already in the end!\n");
-				return 1;
-			}
-
-			// Criando a matriz com os detalhes de cada nó já conhecido
-			Node** posDetails = (Node**) malloc(sizeof(Node*) * rowSize);
+			posDetails = (Node**) malloc(sizeof(Node*) * rowSize);
 			for (int i = 0; i < rowSize; ++i) {
 				posDetails[i] = (Node*) malloc(sizeof(Node) * colSize);
 				std::fill(posDetails[i], posDetails[i]+colSize, Node());
 			}
+		}
+		~A_StarSearch() {
+			Matrix::FreeCharMatrix(visited, rowSize);
+			
+			// Destroi a matriz com as infos de cada nó
+			for (int i = 0; i < rowSize; ++i)
+				free(posDetails[i]);
+			free(posDetails);
+		}
+
+		void PrintPath() {
+			pair<int, int> pos = end;
+			stack<pair<int, int>> path;
+
+			while (!(posDetails[pos.first][pos.second].parent.first == pos.first &&
+					 posDetails[pos.first][pos.second].parent.second == pos.second)) {
+				path.push (pos);
+				visited[pos.first][pos.second] = MINIMUM_PATH;
+				pos = posDetails[pos.first][pos.second].parent;
+			}
+			path.push (pos);
+			visited[pos.first][pos.second] = MINIMUM_PATH;
+
+			while (!path.empty()) {
+				pos = path.top();
+				path.pop();
+				printf("(%d, %d) ", pos.first, pos.second);
+			}
+			printf("\n");
+		}
+
+		void Run() {
+			int returned = Search(start);
+			if (returned){
+				PrintPath();
+				printf("Custo do caminho %.4lf\n", cost);
+				PrintVisited();
+			}
+		}
+
+		int Search(pair<int, int> currentPos){
+			if (currentPos == end){
+				if(DEBUG)printf("You are already in the end!\n");
+				return 1;
+			}
+
+			// Criando a matriz com os detalhes de cada nó já conhecido
 
 			// Inicializando com a posição inicial
 			int x = currentPos.first, y = currentPos.second;
@@ -739,8 +770,9 @@ class A_StarSearch : public SearchBase {
 							// Chegou ao fim!
 							if (newPos == end) {
 								posDetails[newPos.first][newPos.second].parent = make_pair(x, y);
-								printf("CHEGOU AO FIM!\n");
+								if(DEBUG)printf("CHEGOU AO FIM A*!\n");
 								goalReached = true;
+								cost = posDetails[x][y].g + MOVEMENT_COST(i, j);
 								return 1;
 							}
 							else if(visited[newPos.first][newPos.second] == FREE_PATH){
@@ -756,7 +788,6 @@ class A_StarSearch : public SearchBase {
 									posDetails[newPos.first][newPos.second].g = newG;
 									posDetails[newPos.first][newPos.second].h = newH;
 
-									if(DEBUG) printf("(%d, %d) G: %lf, H: %lf, F: %lf\n", newPos.fi, newPos.se, newG, newH, newF);
 									candidates.insert(SetPos(newPos.first, newPos.second, newF));
 								}
 							}
@@ -766,17 +797,25 @@ class A_StarSearch : public SearchBase {
 			}
 
 			if (goalReached == false)
-				printf("Caminho não encontrado!!\n");
-			
-			// Destroi a matriz com as infos de cada nó
-			for (int i = 0; i < rowSize; ++i)
-				free(posDetails[i]);
-			free(posDetails);
+				printf("Caminho não encontrado.\n");
 
 			return 0;
 		}
 		void PrintVisited() {
-			Matrix::PrintCharMatrix(visited, rowSize, colSize);
+			for (int i = 0; i < colSize+2; ++i)
+				printf("- ");
+			printf("\n");
+
+			for (int i = 0; i < rowSize; ++i) {
+				printf("| ");
+				for (int j = 0; j < colSize; ++j)
+					printf("%c ", (visited[i][j] == VISITED) ? '*' : visited[i][j]);
+				printf("|\n");
+			}
+
+			for (int i = 0; i < colSize+2; ++i)
+				printf("- ");
+			printf("\n");
 		}
 };
 
@@ -804,7 +843,6 @@ int main() {
 		timeBestSearch += bests.run();
 		A_StarSearch aStar(lab);
 		aStar.Run();
-		aStar.PrintVisited();
 	}
 	
 	timeDepthSearch = timeDepthSearch/cases;
