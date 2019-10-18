@@ -1,23 +1,30 @@
 #include <iostream>
 #include <cstdlib>
+#include <float.h>
 #include <vector>
 #include <string>
 #include <stack>
 #include <queue>
 #include <cmath>
 #include <map>
+#include <set>
 
 #define fi first
 #define se second
 
+#define DEBUG 1
 #define WALL '-'
 #define FREE_PATH '*'
 #define VISITED 'o'
 #define START '#'
 #define GOAL '$'
 
+#define SIDE_COST 1
+#define DIAGONAL_COST 1.41421356	// sqrt(2)
+#define MOVEMENT_COST(i, j) ((i == 0 || j == 0) ? (SIDE_COST) : (DIAGONAL_COST))
 #define SET_MATRIX_AT(matrix, point, value) matrix[point.first][point.second] = value
 #define IS_POS_VALID(pos) (pos.fi >= 0 && pos.fi < rowSize && pos.se >= 0 && pos.se < colSize)
+#define CALCULATE_DIST_TO_GOAL(pos, goal) (sqrt ((pos.fi - goal.fi)*(pos.fi - goal.fi)  +(pos.se - goal.se)*(pos.se - goal.se)))
 
 using namespace std;
 
@@ -344,6 +351,50 @@ class Matrix {
 		}
 };
 
+class Node {
+	public:
+		pair<int, int> parent;
+		double f, g, h;
+		Node() {
+			parent = make_pair(-1, -1);
+			f = FLT_MAX;
+			g = FLT_MAX;
+			h = FLT_MAX;
+		}
+		Node(int parentX, int parentY, int F, int G, int H) {
+			parent = make_pair(parentX, parentY);
+			f = F;
+			g = G;
+			h = H;
+		}
+		bool operator< (const Node &right) const {
+			return f < right.f;
+		}
+		void Print() {
+			printf("Parent: (%d, %d). f:%lf g:%lf h:%lf\n", parent.first, parent.second, f, g, h);
+		}
+};
+
+class SetPos {
+	public:
+		pair<int, int> pos;
+		double f;
+		SetPos() {
+			pos = make_pair(0, 0);
+			f = 0;
+		}
+		SetPos(int x, int y, double F) {
+			pos = make_pair(x, y);
+			f = F;
+		}
+		bool operator< (const SetPos &right) const {
+			return f < right.f;
+		}
+		void Print() {
+			printf("pos: (%d, %d). f: %lf\n", pos.first, pos.second, f);
+		}
+};
+
 class SearchBase {
 	protected:
 		int rowSize;
@@ -382,18 +433,100 @@ class A_StarSearch : public SearchBase {
 			Matrix::FreeCharMatrix(visited, rowSize);
 		}
 		void Run() {
+			printf("Começando a busca A*\n");
 			int returned = Search(start);
 		}
 
 		int Search(pair<int, int> currentPos){
 			if (currentPos == end){
-				printf("A* found the end!\n");
+				printf("You are already in the end!\n");
 				return 1;
 			}
 
-			SET_MATRIX_AT(visited, currentPos, VISITED);
+			// Criando a matriz com os detalhes de cada nó já conhecido
+			Node** posDetails = (Node**) malloc(sizeof(Node*) * rowSize);
+			for (int i = 0; i < rowSize; ++i) {
+				posDetails[i] = (Node*) malloc(sizeof(Node) * colSize);
+				std::fill(posDetails[i], posDetails[i]+colSize, Node());
+			}
 
+			// Inicializando com a posição inicial
+			int x = currentPos.first, y = currentPos.second;
+			posDetails[x][y].parent = make_pair(x, y);
+			posDetails[x][y].f = 0;
+			posDetails[x][y].g = 0;
+			posDetails[x][y].h = 0;
 
+			// Set com os candidatos para a próxima movimentação
+			set<SetPos> candidates;
+			
+			candidates.insert(SetPos(x, y, 0));
+
+			bool goalReached = false;
+
+			while(!candidates.empty()) {
+				SetPos p = *candidates.begin();
+				candidates.erase(candidates.begin());
+
+				if(DEBUG) p.Print();
+				// Marca como visitado
+				x = p.pos.first;
+				y = p.pos.second;
+				visited[x][y] = VISITED;
+
+				double newF, newG, newH;
+
+				for (int i = -1; i < 2; ++i) {
+					for (int j = -1; j < 2; ++j) {
+						pair<int, int> newPos(x+i, y+j);
+						//if(DEBUG) printf("Pos == %d,%d\n", newPos.fi, newPos.se);
+						// Se i e j forem iguais a zero, a nova posição é a mesma que a atual.
+						// Portanto, deve-se ignorar este caso. O mesmo acontece caso a nova posição
+						// esteja fora da dimensão do labirinto.
+						if ((i != 0 || j != 0) && IS_POS_VALID(newPos)) {
+							//if(DEBUG) printf("Pos válida\n");
+
+							// Chegou ao fim!
+							if (newPos == end) {
+								posDetails[newPos.first][newPos.second].parent = make_pair(x, y);
+								printf("CHEGOU AO FIM!\n");
+								goalReached = true;
+								return 1;
+							}
+							else if(visited[newPos.first][newPos.second] == FREE_PATH){
+								newG = posDetails[x][y].g + MOVEMENT_COST(i, j);
+								newH = CALCULATE_DIST_TO_GOAL(newPos, end);
+								newF = newG + newH;
+
+								if (posDetails[newPos.first][newPos.second].f == FLT_MAX ||
+									posDetails[newPos.first][newPos.second].f > newF) {
+
+									posDetails[newPos.first][newPos.second].parent = make_pair(x, y);
+									posDetails[newPos.first][newPos.second].f = newF;
+									posDetails[newPos.first][newPos.second].g = newG;
+									posDetails[newPos.first][newPos.second].h = newH;
+
+									if(DEBUG) printf("(%d, %d) G: %lf, H: %lf, F: %lf\n", newPos.fi, newPos.se, newG, newH, newF);
+									candidates.insert(SetPos(newPos.first, newPos.second, newF));
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (goalReached == false)
+				printf("Caminho não encontrado!!\n");
+			
+			// Destroi a matriz com as infos de cada nó
+			for (int i = 0; i < rowSize; ++i)
+				free(posDetails[i]);
+			free(posDetails);
+
+			return 0;
+		}
+		void PrintVisited() {
+			Matrix::PrintCharMatrix(visited, rowSize, colSize);
 		}
 };
 
@@ -415,6 +548,7 @@ int main() {
 		//ds.run();
 		A_StarSearch aStar(lab);
 		aStar.Run();
+		aStar.PrintVisited();
 	}
 		
 	
