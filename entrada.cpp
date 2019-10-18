@@ -6,8 +6,18 @@
 #include <queue>
 #include <cmath>
 #include <map>
+
 #define fi first
 #define se second
+
+#define WALL '-'
+#define FREE_PATH '*'
+#define VISITED 'o'
+#define START '#'
+#define GOAL '$'
+
+#define SET_MATRIX_AT(matrix, point, value) matrix[point.first][point.second] = value
+#define IS_POS_VALID(pos) (pos.fi >= 0 && pos.fi < rowSize && pos.se >= 0 && pos.se < colSize)
 
 using namespace std;
 
@@ -309,6 +319,84 @@ class BreadthSearch {
 
 };
 
+class Matrix {
+	public:
+		static void CreateCharMatrix(char** &matrix, int rows, int columns) {
+			matrix = (char**) malloc(sizeof(char*) * rows);
+			for (int i = 0; i < rows; ++i) {
+				matrix[i] = (char*) malloc(sizeof(char) * columns);
+			}
+		}
+		static void FreeCharMatrix(char** &matrix, int rows) {
+			for (int i = 0; i < rows; ++i) {
+				free(matrix[i]);
+			}
+			free(matrix);
+		}
+		static void PrintCharMatrix(char** &matrix, int rows, int columns) {
+			for(int i = 0; i < rows; i++){
+				for(int j = 0; j < columns; j++){
+					printf("%c", matrix[i][j]);
+				}
+				printf("\n");
+			}
+			printf("\n");
+		}
+};
+
+class SearchBase {
+	protected:
+		int rowSize;
+		int colSize;
+		pair<int, int> start;
+		pair<int, int> end;
+		char **visited;
+	public:
+		void SetLabyrinthVariables(Labyrinth &lab) {
+			rowSize = lab.getRow();
+			colSize = lab.getCol();
+			start =  lab.getStart();
+			end =  lab.getEnd();
+		}
+		void CreateVisitedMatrix(Labyrinth &lab) {
+			Matrix::CreateCharMatrix(visited, rowSize, colSize);
+			for(int i = 0; i < rowSize; i++)
+				for(int j = 0; j < colSize; j++)
+					visited[i][j] = lab.labyrinth[i][j];
+		}
+};
+
+class A_StarSearch : public SearchBase {
+	private:
+		double cost;
+
+	public:
+		A_StarSearch(Labyrinth &lab) {
+			cost = 0.0;
+			SetLabyrinthVariables(lab);
+			CreateVisitedMatrix(lab);
+			
+			Matrix::PrintCharMatrix(visited, rowSize, colSize);
+		}
+		~A_StarSearch() {
+			Matrix::FreeCharMatrix(visited, rowSize);
+		}
+		void Run() {
+			int returned = Search(start);
+		}
+
+		int Search(pair<int, int> currentPos){
+			if (currentPos == end){
+				printf("A* found the end!\n");
+				return 1;
+			}
+
+			SET_MATRIX_AT(visited, currentPos, VISITED);
+
+
+		}
+};
+
 int main() { 
 
 	int cases;
@@ -323,8 +411,10 @@ int main() {
 		//DepthSearch  
 		lab.readInput();
 		lab.printLab();
-		DepthSearch ds(lab);
-		ds.run();
+		//DepthSearch ds(lab);
+		//ds.run();
+		A_StarSearch aStar(lab);
+		aStar.Run();
 	}
 		
 	
