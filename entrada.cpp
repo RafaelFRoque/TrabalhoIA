@@ -59,11 +59,9 @@ class Labyrinth {
 					cin >> labyrinth[i][j];
 					if(labyrinth[i][j] == '#'){
 						start = make_pair(i, j);
-						cout << "#" << i << " " << j << endl;
 					}
 					else if(labyrinth[i][j] == '$'){
 						end = make_pair(i, j);
-						cout << "$" << i << " " << j << endl;
 					}
 				}
 			}
@@ -121,7 +119,8 @@ class DepthSearch {
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
-				cout << cost << endl;
+				cout << endl;
+				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
 			timerB = clock();
@@ -129,12 +128,25 @@ class DepthSearch {
 		}
 
 		void printVisited() {
+			for(int i = 0; i < visitedCol+2; i++)
+				cout<< "- ";
+			
+			cout << endl;
 			for(int i = 0; i < visitedRow; i++){
+				cout << "| ";
 				for(int j = 0; j < visitedCol; j++){
-					cout << visited[i][j];
+					if(visited[i][j] == '+')
+						cout << "* ";
+					else{
+						cout << visited[i][j]<< " ";
+					}
 				}
-				cout << endl;
+				
+				cout << "|"<< endl;
 			}
+			for(int i = 0; i < visitedCol+2; i++)
+				cout<< "- ";
+			cout << endl;
 		}
 
 		// inicialmente, vamos tentar pintar só de uma cor. depois, podemos utilizar mais cores para encontrar o melhor caminho
@@ -144,9 +156,9 @@ class DepthSearch {
 				path.push(pos);
 				return 1;
 			}
-			visited[pos.fi][pos.se] = 'o';
+			visited[pos.fi][pos.se] = '+';
 			//norte
-			if(pos.fi > 0 and visited[pos.fi-1][pos.se] != '-' and visited[pos.fi-1][pos.se] != 'o'){
+			if(pos.fi > 0 and visited[pos.fi-1][pos.se] != '-' and visited[pos.fi-1][pos.se] != '+'){
 				cost += 1.0;
 				if(search(make_pair(pos.fi-1, pos.se))) {
 					path.push(pos);
@@ -155,7 +167,7 @@ class DepthSearch {
 				cost -= 1.0;
 			}
 			//nordeste
-			if(pos.fi > 0 and pos.se < visitedCol-1 and visited[pos.fi-1][pos.se+1] != '-' and visited[pos.fi-1][pos.se+1] != 'o'){
+			if(pos.fi > 0 and pos.se < visitedCol-1 and visited[pos.fi-1][pos.se+1] != '-' and visited[pos.fi-1][pos.se+1] != '+'){
 				cost += sqrt(2);
 				if(search(make_pair(pos.fi-1, pos.se+1))) {
 					path.push(pos);
@@ -164,7 +176,7 @@ class DepthSearch {
 				cost -= sqrt(2);
 			}
 			//leste
-			if(pos.se < visitedCol-1 and visited[pos.fi][pos.se+1] != '-' and visited[pos.fi][pos.se+1] != 'o'){
+			if(pos.se < visitedCol-1 and visited[pos.fi][pos.se+1] != '-' and visited[pos.fi][pos.se+1] != '+'){
 				cost += 1.0;
 				if(search(make_pair(pos.fi, pos.se+1))) {
 					path.push(pos);
@@ -173,7 +185,7 @@ class DepthSearch {
 				cost -= 1.0;
 			}
 			//sudeste
-			if(pos.fi < visitedRow-1 and pos.second < visitedCol-1 and visited[pos.fi+1][pos.se+1] != '-' and visited[pos.fi+1][pos.se+1] != 'o'){
+			if(pos.fi < visitedRow-1 and pos.second < visitedCol-1 and visited[pos.fi+1][pos.se+1] != '-' and visited[pos.fi+1][pos.se+1] != '+'){
 				cost += sqrt(2);
 				if(search(make_pair(pos.fi+1, pos.se+1))) {
 					path.push(pos);
@@ -182,7 +194,7 @@ class DepthSearch {
 				cost -= sqrt(2);
 			}
 			//sul
-			if(pos.fi < visitedRow-1 and visited[pos.fi+1][pos.se] != '-' and visited[pos.fi+1][pos.se] != 'o'){
+			if(pos.fi < visitedRow-1 and visited[pos.fi+1][pos.se] != '-' and visited[pos.fi+1][pos.se] != '+'){
 				cost += 1.0;
 				if(search(make_pair(pos.fi+1, pos.se))) {
 					path.push(pos);
@@ -191,7 +203,7 @@ class DepthSearch {
 				cost -= 1.0;
 			}
 			//sudoeste
-			if(pos.fi < visitedRow-1 and pos.se > 0 and visited[pos.fi+1][pos.se-1] != '-' and visited[pos.fi+1][pos.se-1] != 'o'){
+			if(pos.fi < visitedRow-1 and pos.se > 0 and visited[pos.fi+1][pos.se-1] != '-' and visited[pos.fi+1][pos.se-1] != '+'){
 				cost += sqrt(2);
 				if(search(make_pair(pos.fi+1, pos.se-1))) {
 					path.push(pos);
@@ -200,7 +212,7 @@ class DepthSearch {
 				cost -= sqrt(2);
 			}
 			//oeste
-			if(pos.se > 0 and visited[pos.fi][pos.se-1] != '-' and visited[pos.fi][pos.se-1] != 'o'){
+			if(pos.se > 0 and visited[pos.fi][pos.se-1] != '-' and visited[pos.fi][pos.se-1] != '+'){
 				cost += 1.0;
 				if(search(make_pair(pos.fi, pos.se-1))) {
 					path.push(pos);
@@ -209,7 +221,7 @@ class DepthSearch {
 				cost -= 1.0;
 			}
 			//noroeste
-			if(pos.fi > 0 and pos.se > 0 and visited[pos.fi-1][pos.se-1] != '-' and visited[pos.fi-1][pos.se-1] != 'o'){
+			if(pos.fi > 0 and pos.se > 0 and visited[pos.fi-1][pos.se-1] != '-' and visited[pos.fi-1][pos.se-1] != '+'){
 				cost += sqrt(2);
 				if(search(make_pair(pos.fi-1, pos.se-1))) {
 					path.push(pos);
@@ -274,8 +286,9 @@ class BreadthSearch {
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
+				cout << endl;
 				cost = parent[end.fi][end.se].se;
-				cout << cost << endl;
+				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
 			timerB = clock();
@@ -285,7 +298,7 @@ class BreadthSearch {
 
 		int search(){
 			queue<pair<int, int>> q;
-			visited[start.fi][start.se] = 'o';
+			visited[start.fi][start.se] = '+';
 			q.push(start);
 			while(!q.empty()) {
 				pair<int, int> aux = q.front();
@@ -301,50 +314,50 @@ class BreadthSearch {
 				}
 				else{
 					//norte
-					if(aux.fi > 0 and visited[aux.fi-1][aux.se] != '-' and visited[aux.fi-1][aux.se] != 'o'){
-						visited[aux.fi-1][aux.se] = 'o';
+					if(aux.fi > 0 and visited[aux.fi-1][aux.se] != '-' and visited[aux.fi-1][aux.se] != '+'){
+						visited[aux.fi-1][aux.se] = '+';
 						q.push(make_pair(aux.fi-1, aux.se));
 						parent[aux.fi-1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//nordeste
-					if(aux.fi > 0 and aux.se < visitedCol-1 and visited[aux.fi-1][aux.se+1] != '-' and visited[aux.fi-1][aux.se+1] != 'o'){
-						visited[aux.fi-1][aux.se+1] = 'o';
+					if(aux.fi > 0 and aux.se < visitedCol-1 and visited[aux.fi-1][aux.se+1] != '-' and visited[aux.fi-1][aux.se+1] != '+'){
+						visited[aux.fi-1][aux.se+1] = '+';
 						q.push(make_pair(aux.fi-1, aux.se+1));
 						parent[aux.fi-1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//leste
-					if(aux.se < visitedCol-1 and visited[aux.fi][aux.se+1] != '-' and visited[aux.fi][aux.se+1] != 'o'){
-						visited[aux.fi][aux.se+1] = 'o';
+					if(aux.se < visitedCol-1 and visited[aux.fi][aux.se+1] != '-' and visited[aux.fi][aux.se+1] != '+'){
+						visited[aux.fi][aux.se+1] = '+';
 						q.push(make_pair(aux.fi, aux.se+1));
 						parent[aux.fi][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//sudeste
-					if(aux.fi < visitedRow-1 and aux.second < visitedCol-1 and visited[aux.fi+1][aux.se+1] != '-' and visited[aux.fi+1][aux.se+1] != 'o'){
-						visited[aux.fi+1][aux.se+1] = 'o';
+					if(aux.fi < visitedRow-1 and aux.second < visitedCol-1 and visited[aux.fi+1][aux.se+1] != '-' and visited[aux.fi+1][aux.se+1] != '+'){
+						visited[aux.fi+1][aux.se+1] = '+';
 						q.push(make_pair(aux.fi+1, aux.se+1));
 						parent[aux.fi+1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//sul
-					if(aux.fi < visitedRow-1 and visited[aux.fi+1][aux.se] != '-' and visited[aux.fi+1][aux.se] != 'o'){
-						visited[aux.fi+1][aux.se] = 'o';
+					if(aux.fi < visitedRow-1 and visited[aux.fi+1][aux.se] != '-' and visited[aux.fi+1][aux.se] != '+'){
+						visited[aux.fi+1][aux.se] = '+';
 						q.push(make_pair(aux.fi+1, aux.se));
 						parent[aux.fi+1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//sudoeste
-					if(aux.fi < visitedRow-1 and aux.se > 0 and visited[aux.fi+1][aux.se-1] != '-' and visited[aux.fi+1][aux.se-1] != 'o'){
-						visited[aux.fi+1][aux.se-1] = 'o';
+					if(aux.fi < visitedRow-1 and aux.se > 0 and visited[aux.fi+1][aux.se-1] != '-' and visited[aux.fi+1][aux.se-1] != '+'){
+						visited[aux.fi+1][aux.se-1] = '+';
 						q.push(make_pair(aux.fi+1, aux.se-1));
 						parent[aux.fi+1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//oeste
-					if(aux.se > 0 and visited[aux.fi][aux.se-1] != '-' and visited[aux.fi][aux.se-1] != 'o'){
-						visited[aux.fi][aux.se-1] = 'o';
+					if(aux.se > 0 and visited[aux.fi][aux.se-1] != '-' and visited[aux.fi][aux.se-1] != '+'){
+						visited[aux.fi][aux.se-1] = '+';
 						q.push(make_pair(aux.fi, aux.se-1));
 						parent[aux.fi][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//noroeste
-					if(aux.fi > 0 and aux.se > 0 and visited[aux.fi-1][aux.se-1] != '-' and visited[aux.fi-1][aux.se-1] != 'o'){
-						visited[aux.fi-1][aux.se-1] = 'o';
+					if(aux.fi > 0 and aux.se > 0 and visited[aux.fi-1][aux.se-1] != '-' and visited[aux.fi-1][aux.se-1] != '+'){
+						visited[aux.fi-1][aux.se-1] = '+';
 						q.push(make_pair(aux.fi-1, aux.se-1));
 						parent[aux.fi-1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
@@ -354,12 +367,25 @@ class BreadthSearch {
 		}
 
 		void printVisited() {
+			for(int i = 0; i < visitedCol+2; i++)
+				cout<< "- ";
+			
+			cout << endl;
 			for(int i = 0; i < visitedRow; i++){
+				cout << "| ";
 				for(int j = 0; j < visitedCol; j++){
-					cout << visited[i][j];
+					if(visited[i][j] == '+')
+						cout << "* ";
+					else{
+						cout << visited[i][j]<< " ";
+					}
 				}
-				cout << endl;
+				
+				cout << "|"<<endl;
 			}
+			for(int i = 0; i < visitedCol+2; i++)
+				cout<< "- ";
+			cout << endl;
 		}
 
 };
@@ -418,8 +444,9 @@ class BestSearch {
 					visited[path.top().fi][path.top().se] = '0';
 					path.pop();
 				}
+				cout << endl;
 				cost = parent[end.fi][end.se].se;
-				cout << cost << endl;
+				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
 			timerB = clock();
@@ -431,7 +458,7 @@ class BestSearch {
 		int search(){
 			priority_queue <pair<int, pair<int, int> > > q;
 
-			visited[start.fi][start.se] = 'o';
+			visited[start.fi][start.se] = '+';
 			q.push(make_pair(0, start));
 			while(!q.empty()) {
 
@@ -448,58 +475,58 @@ class BestSearch {
 				}
 				else{
 					//norte
-					if(aux.fi > 0 and visited[aux.fi-1][aux.se] != '-' and visited[aux.fi-1][aux.se] != 'o'){
+					if(aux.fi > 0 and visited[aux.fi-1][aux.se] != '-' and visited[aux.fi-1][aux.se] != '+'){
 						manhattan = abs((aux.fi-1 - end.fi) + (aux.se - end.se));
-						visited[aux.fi-1][aux.se] = 'o';
+						visited[aux.fi-1][aux.se] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi-1, aux.se)));
 						parent[aux.fi-1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//nordeste
-					if(aux.fi > 0 and aux.se < visitedCol-1 and visited[aux.fi-1][aux.se+1] != '-' and visited[aux.fi-1][aux.se+1] != 'o'){
+					if(aux.fi > 0 and aux.se < visitedCol-1 and visited[aux.fi-1][aux.se+1] != '-' and visited[aux.fi-1][aux.se+1] != '+'){
 						manhattan = abs((aux.fi-1 - end.fi) + (aux.se+1 - end.se));
-						visited[aux.fi-1][aux.se+1] = 'o';
+						visited[aux.fi-1][aux.se+1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi-1, aux.se+1)));
 						parent[aux.fi-1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//leste
-					if(aux.se < visitedCol-1 and visited[aux.fi][aux.se+1] != '-' and visited[aux.fi][aux.se+1] != 'o'){
+					if(aux.se < visitedCol-1 and visited[aux.fi][aux.se+1] != '-' and visited[aux.fi][aux.se+1] != '+'){
 						manhattan = abs((aux.fi - end.fi) + (aux.se+1 - end.se));
-						visited[aux.fi][aux.se+1] = 'o';
+						visited[aux.fi][aux.se+1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi, aux.se+1)));
 						parent[aux.fi][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//sudeste
-					if(aux.fi < visitedRow-1 and aux.second < visitedCol-1 and visited[aux.fi+1][aux.se+1] != '-' and visited[aux.fi+1][aux.se+1] != 'o'){
+					if(aux.fi < visitedRow-1 and aux.second < visitedCol-1 and visited[aux.fi+1][aux.se+1] != '-' and visited[aux.fi+1][aux.se+1] != '+'){
 						manhattan = abs((aux.fi+1 - end.fi) + (aux.se+1 - end.se));
-						visited[aux.fi+1][aux.se+1] = 'o';
+						visited[aux.fi+1][aux.se+1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi+1, aux.se+1)));
 						parent[aux.fi+1][aux.se+1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//sul
-					if(aux.fi < visitedRow-1 and visited[aux.fi+1][aux.se] != '-' and visited[aux.fi+1][aux.se] != 'o'){
+					if(aux.fi < visitedRow-1 and visited[aux.fi+1][aux.se] != '-' and visited[aux.fi+1][aux.se] != '+'){
 						manhattan = abs((aux.fi+1 - end.fi) + (aux.se - end.se));
-						visited[aux.fi+1][aux.se] = 'o';
+						visited[aux.fi+1][aux.se] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi+1, aux.se)));
 						parent[aux.fi+1][aux.se] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//sudoeste
-					if(aux.fi < visitedRow-1 and aux.se > 0 and visited[aux.fi+1][aux.se-1] != '-' and visited[aux.fi+1][aux.se-1] != 'o'){
+					if(aux.fi < visitedRow-1 and aux.se > 0 and visited[aux.fi+1][aux.se-1] != '-' and visited[aux.fi+1][aux.se-1] != '+'){
 						manhattan = abs((aux.fi+1 - end.fi) + (aux.se-1 - end.se));
-						visited[aux.fi+1][aux.se-1] = 'o';
+						visited[aux.fi+1][aux.se-1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi+1, aux.se-1)));
 						parent[aux.fi+1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
 					//oeste
-					if(aux.se > 0 and visited[aux.fi][aux.se-1] != '-' and visited[aux.fi][aux.se-1] != 'o'){
+					if(aux.se > 0 and visited[aux.fi][aux.se-1] != '-' and visited[aux.fi][aux.se-1] != '+'){
 						manhattan = abs((aux.fi - end.fi) + (aux.se-1 - end.se));
-						visited[aux.fi][aux.se-1] = 'o';
+						visited[aux.fi][aux.se-1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi, aux.se-1)));
 						parent[aux.fi][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + 1.0);
 					}
 					//noroeste
-					if(aux.fi > 0 and aux.se > 0 and visited[aux.fi-1][aux.se-1] != '-' and visited[aux.fi-1][aux.se-1] != 'o'){
+					if(aux.fi > 0 and aux.se > 0 and visited[aux.fi-1][aux.se-1] != '-' and visited[aux.fi-1][aux.se-1] != '+'){
 						manhattan = abs((aux.fi-1 - end.fi) + (aux.se-1 - end.se));
-						visited[aux.fi-1][aux.se-1] = 'o';
+						visited[aux.fi-1][aux.se-1] = '+';
 						q.push(make_pair(-manhattan, make_pair(aux.fi-1, aux.se-1)));
 						parent[aux.fi-1][aux.se-1] = make_pair(((aux.fi)*visitedCol + aux.se), parent[aux.fi][aux.se].se + sqrt(2));
 					}
@@ -509,12 +536,25 @@ class BestSearch {
 		}
 
 		void printVisited() {
-			for(int i = 0; i < visitedRow; i++){
-				for(int j = 0; j < visitedCol; j++){
-					cout << visited[i][j];
-				}
-				cout << endl;
+			for(int i = 0; i < visitedCol+2; i++){
+				cout<< "- ";
 			}
+			cout << endl;
+			for(int i = 0; i < visitedRow; i++){
+				cout << "| ";
+				for(int j = 0; j < visitedCol; j++){
+					if(visited[i][j] == '+')
+						cout << "* ";
+					else{
+						cout << visited[i][j]<< " ";
+					}
+				}
+				
+				cout << "|"<<endl;
+			}
+			for(int i = 0; i < visitedCol+2; i++)
+				cout<< "- ";
+			cout << endl;
 		}
 
 };
@@ -535,15 +575,14 @@ int main() {
 		cin >> row >> col;
 		Labyrinth lab(row, col); 
 		lab.readInput();
-		lab.printLab();
 		DepthSearch ds(lab);
 		timeDepthSearch += ds.run();
 		BreadthSearch bs(lab);
 		timeBreadthSearch += bs.run();
 		BestSearch bests(lab);
 		timeBestSearch += bests.run();
-
 	}
+	
 	timeDepthSearch = timeDepthSearch/cases;
 	timeBreadthSearch =  timeBreadthSearch/cases;
 	timeBestSearch =  timeBestSearch/cases;
