@@ -129,9 +129,10 @@ class DepthSearch {
 		double run() {
 			clock_t timerA;
 			clock_t timerB;
-			
+			cout << "Busca em profundidade: " << endl;			
 			timerA = clock();
 			if(search(start)){
+				cout << "Caminho encontrado: ";
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ") "; 
 					visited[path.top().fi][path.top().se] = '0';
@@ -141,8 +142,13 @@ class DepthSearch {
 				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
+			else{
+				cout << "Caminho não encontrado." << endl;
+			}
 			timerB = clock();
-			return (double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);				
+			double time =(double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
+			cout << "Tempo gasto: " << time << endl; 
+			return time;				
 		}
 
 		void printVisited() {
@@ -298,7 +304,9 @@ class BreadthSearch {
 			clock_t timerA;
 			clock_t timerB;
 			timerA = clock();
+			cout << "Busca em largura: " << endl;
 			if(search()){
+				cout << "Caminho encontrado: ";
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ") ";
 					visited[path.top().fi][path.top().se] = '0';
@@ -309,8 +317,13 @@ class BreadthSearch {
 				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
+			else{
+				cout << "Caminho não encontrado." << endl;
+			}
 			timerB = clock();
-			return (double)(timerB-timerA)/(double)(CLOCKS_PER_SEC);
+			double time =(double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
+			cout << "Tempo gasto: " << time << endl; 
+			return time;
 							
 		}
 
@@ -456,7 +469,9 @@ class BestSearch {
 			clock_t timerA;
 			clock_t timerB;
 			timerA = clock();
+			cout << "Best First Search: " << endl;
 			if(search()){
+				cout << "Caminho encontrado: ";
 				while(!path.empty()){
 					cout << "(" << path.top().fi << ", " << path.top().se << ") ";
 					visited[path.top().fi][path.top().se] = '0';
@@ -467,9 +482,13 @@ class BestSearch {
 				cout << "Custo do caminho " << cost << endl;
 				printVisited();
 			}
+			else{
+				cout << "Caminho não encontrado." << endl;
+			}
 			timerB = clock();
-
-			return (double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
+			double time =(double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
+			cout << "Tempo gasto: " << time << endl; 
+			return time;
 							
 		}
 
@@ -844,14 +863,14 @@ int main() {
 		A_StarSearch aStar(lab);
 		aStar.Run();
 	}
-	
+
 	timeDepthSearch = timeDepthSearch/cases;
 	timeBreadthSearch =  timeBreadthSearch/cases;
 	timeBestSearch =  timeBestSearch/cases;
 
-	printf("Media DS: %lf\n", timeDepthSearch);
-	printf("Media BS: %lf\n", timeBreadthSearch);
-	printf("Media BestS: %lf\n", timeBestSearch);
+	printf("Media Busca em Profundidade: %lf\n", timeDepthSearch);
+	printf("Media Busca em Largura: %lf\n", timeBreadthSearch);
+	printf("Media Best First Search: %lf\n", timeBestSearch);
 	
 	return 0;
 }
