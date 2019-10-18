@@ -733,13 +733,22 @@ class A_StarSearch : public SearchBase {
 			printf("\n");
 		}
 
-		void Run() {
+		double Run() {
+			clock_t timerA;
+			clock_t timerB;
+			timerA = clock();
+			printf("Busca A*:\n");
 			int returned = Search(start);
 			if (returned){
+				printf("Caminho encontrado: ");
 				PrintPath();
 				printf("Custo do caminho %.4lf\n", cost);
 				PrintVisited();
 			}
+			timerB = clock();
+			double time =(double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
+			printf("Tempo gasto: %0.4g\n", time); 
+			return time;
 		}
 
 		int Search(pair<int, int> currentPos){
@@ -846,7 +855,7 @@ int main() {
 	double timeDepthSearch = 0.0;
 	double timeBreadthSearch = 0.0;
 	double timeBestSearch = 0.0;
-	double timeA = 0.0;
+	double timeA_StarSearch = 0.0;
 
 	while(count > 0) {
 		count--;
@@ -861,16 +870,18 @@ int main() {
 		BestSearch bests(lab);
 		timeBestSearch += bests.run();
 		A_StarSearch aStar(lab);
-		aStar.Run();
+		timeA_StarSearch += aStar.Run();
 	}
 
 	timeDepthSearch = timeDepthSearch/cases;
 	timeBreadthSearch =  timeBreadthSearch/cases;
 	timeBestSearch =  timeBestSearch/cases;
+	timeA_StarSearch =  timeA_StarSearch/cases;
 
 	printf("Media Busca em Profundidade: %lf\n", timeDepthSearch);
 	printf("Media Busca em Largura: %lf\n", timeBreadthSearch);
 	printf("Media Best First Search: %lf\n", timeBestSearch);
+	printf("Media Busca A*: %lf\n", timeA_StarSearch);
 	
 	return 0;
 }
