@@ -1,7 +1,8 @@
 FILENAME = exec
+MAINCODE = entrada.cpp
 
 all:
-	g++ *.cpp -o $(FILENAME) -g
+	g++ $(MAINCODE) -o $(FILENAME) -g
 
 run:
 	./$(FILENAME) < 1.in
