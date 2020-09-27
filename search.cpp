@@ -26,7 +26,7 @@
 #define MOVEMENT_COST(i, j) ((i == 0 || j == 0) ? (SIDE_COST) : (DIAGONAL_COST))
 #define SET_MATRIX_AT(matrix, point, value) matrix[point.first][point.second] = value
 #define IS_POS_VALID(pos) (pos.fi >= 0 && pos.fi < rowSize && pos.se >= 0 && pos.se < colSize)
-#define CALCULATE_DIST_TO_GOAL(pos, goal) (sqrt ((pos.fi - goal.fi)*(pos.fi - goal.fi)  +(pos.se - goal.se)*(pos.se - goal.se)))
+#define CALCULATE_DIST_TO_GOAL(pos, goal) ( ((pos.fi - goal.fi)*(pos.fi - goal.fi)  +(pos.se - goal.se)*(pos.se - goal.se)))
 
 using namespace std;
 
@@ -745,6 +745,7 @@ class A_StarSearch : public SearchBase {
 				printf("Custo do caminho %.4lf\n", cost);
 				PrintVisited();
 			}
+			Matrix::PrintCharMatrix(visited, rowSize, colSize);
 			timerB = clock();
 			double time =(double)(timerB - timerA)/(double)(CLOCKS_PER_SEC);
 			printf("Tempo gasto: %0.4g\n", time); 
@@ -837,7 +838,7 @@ class A_StarSearch : public SearchBase {
 			for (int i = 0; i < rowSize; ++i) {
 				printf("| ");
 				for (int j = 0; j < colSize; ++j)
-					printf("%c ", (visited[i][j] == VISITED) ? '*' : visited[i][j]);
+					printf("%c ", /*(visited[i][j] == VISITED) ? '*' :*/ visited[i][j]);
 				printf("|\n");
 			}
 
